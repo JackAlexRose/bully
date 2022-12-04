@@ -1,0 +1,25 @@
+{
+  "name": "bully",
+  "version": "2.0.0",
+  "description": "This is the new and improved Bully the Discord bot",
+  "main": "./prod/index.js",
+  "repository": "git@github.com:JackAlexRose/bully.git",
+  "author": "JackAlexRose <jackalexanderrose@hotmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && node -r dotenv/config ./prod/index.js"
+  },
+  "dependencies": {
+    "@discordjs/builders": "^1.4.0",
+    "@discordjs/rest": "^1.4.0",
+    "discord-api-types": "^0.37.20",
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
+    "mongoose": "^6.7.5"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.10",
+    "typescript": "^4.9.3"
+  }
+}
