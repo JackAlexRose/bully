@@ -1,0 +1,18 @@
+import Command from "../interfaces/Command";
+import { SlashCommandBuilder } from "discord.js";
+
+export const {{camelCase name}}: Command = {
+  data: new SlashCommandBuilder()
+    .setName("{{camelCase name}}")
+    .setDescription("{{sentenceCase description}}")
+    .addStringOption((option) =>
+      option
+        .setName("example input")
+        .setDescription("example input from the user")
+        .setRequired(true)
+    ),
+  async execute(interaction) {
+    const exampleInput = interaction.options.getString("example input", true);
+    await interaction.reply(`You said: ${exampleInput}`);
+  },
+};

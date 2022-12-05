@@ -1,12 +1,14 @@
-import { Interaction } from "discord.js";
-import { CommandList } from "../commands/_CommandList";
+import { ChatInputCommandInteraction } from "discord.js";
+import getCommandList from "../utils/getCommandList";
 
-export const onInteraction = async (interaction: Interaction) => {
+export default async (interaction: ChatInputCommandInteraction) => {
   if (!interaction.isCommand()) return;
 
   const { commandName } = interaction;
 
-  for (const command of CommandList) {
+  const commandList = getCommandList();
+
+  for (const command of commandList) {
     if (command.data.name === commandName) {
       await command.execute(interaction);
       return;

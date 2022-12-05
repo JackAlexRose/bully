@@ -1,6 +1,6 @@
-import { Client } from "discord.js";
+import { ChatInputCommandInteraction, Client } from "discord.js";
 import { IntentOptions } from "./config/IntentOptions";
-import { onInteraction } from "./events/onInteraction";
+import onInteraction from "./events/onInteraction";
 
 (async () => {
   const DiscordClient = new Client({ intents: IntentOptions });
@@ -8,7 +8,8 @@ import { onInteraction } from "./events/onInteraction";
 
   DiscordClient.on(
     "interactionCreate",
-    async (interaction) => await onInteraction(interaction)
+    async (interaction) =>
+      await onInteraction(interaction as ChatInputCommandInteraction)
   );
 
   await DiscordClient.login(process.env.BOT_TOKEN);
