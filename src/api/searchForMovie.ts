@@ -11,6 +11,6 @@ export interface SearchForMovieResponse {
 export async function searchForMovie(
   title: string
 ): Promise<SearchForMovieResponse | string> {
-  const path = `http://www.omdbapi.com/?apikey=${process.env.OMDB_API_KEY}&s=${title}`;
+  const path = `http://www.omdbapi.com/?apikey=${process.env.TMDB_API_KEY}&s=${title}`;
   return await get<SearchForMovieResponse>(path);
 }

@@ -10,7 +10,6 @@
     "build": "tsc",
     "start": "tsc && node -r dotenv/config ./prod/index.js"
   },
-  "type": "module",
   "dependencies": {
     "@discordjs/builders": "^1.4.0",
     "@discordjs/rest": "^1.4.0",
