@@ -7,7 +7,9 @@ import {
   EmbedBuilder,
   SlashCommandBuilder,
 } from "@discordjs/builders";
-import { ButtonStyle } from "discord.js";
+import { APIEmbed, ButtonStyle, ComponentType } from "discord.js";
+import { randomColor } from "../constants";
+import { Movie } from "../types/movie";
 
 const movie: Command = {
   data: new SlashCommandBuilder()
@@ -34,89 +36,131 @@ const movie: Command = {
 
         const movieDetails = await queryMovie(movie.id);
 
-        const embed = new EmbedBuilder()
-          .setTitle(movieDetails.title)
-          .setDescription(movieDetails.overview || "No overview available.")
-          .setURL(`https://www.themoviedb.org/movie/${movie.id}`)
-          .addFields([
-            {
-              name: "Release Date",
-              value: movieDetails.release_date || "Unknown",
-              inline: true,
-            },
-            {
-              name: "Rating",
-              value: movieDetails.vote_average?.toString() || "Unknown",
-              inline: true,
-            },
-            {
-              name: "Runtime",
-              value: movieDetails.runtime?.toString() || "Unknown",
-              inline: true,
-            },
-            {
-              name: "Genres",
-              value:
-                movieDetails.genres?.map((genre) => genre.name).join(", ") ||
-                "Unknown",
-              inline: false,
-            },
-            {
-              name: "Spoken Languages",
-              value:
-                movieDetails.spoken_languages
-                  ?.map((language) => language.name)
-                  .join(", ") || "Unknown",
-              inline: false,
-            },
-            {
-              name: "Budget",
-              value: movieDetails.budget?.toLocaleString() || "Unknown",
-              inline: true,
-            },
-            {
-              name: "Revenue",
-              value: movieDetails.revenue?.toLocaleString() || "Unknown",
-              inline: true,
-            },
-            {
-              name: "Trailer",
-              value:
-                movieDetails.videos?.results &&
-                movieDetails.videos?.results[0].site === "YouTube" &&
-                movieDetails.videos?.results[0].key !== undefined
-                  ? `https://www.youtube.com/watch?v=${movieDetails.videos?.results[0].key}`
-                  : "No trailer available.",
-            },
-          ])
-          .setImage(
-            `https://image.tmdb.org/t/p/w300${movieDetails.poster_path}`
-          )
-          .setColor(0xffd500);
+        const embed = buildEmbed(movieDetails);
+        const ephemeralActionRow = buildEphemeralActionRow();
 
-        const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents([
-          new ButtonBuilder()
-            .setCustomId("retry")
-            .setLabel("Not the right movie?")
-            .setStyle(ButtonStyle.Primary),
-          new ButtonBuilder()
-            .setCustomId("recommend")
-            .setLabel("I recommend this movie!")
-            .setStyle(ButtonStyle.Success),
-          new ButtonBuilder()
-            .setCustomId("not-recommend")
-            .setLabel("I don't like this movie!")
-            .setStyle(ButtonStyle.Danger),
-        ]);
+        const interactionResponse = await interaction.reply({
+          embeds: [embed],
+          components: [ephemeralActionRow],
+          ephemeral: true,
+        });
 
-        await interaction.reply({ embeds: [embed], components: [] });
+        interactionResponse
+          .awaitMessageComponent({
+            componentType: ComponentType.Button,
+            time: 60000,
+          })
+          .then(async (buttonInteraction) => {
+            if (buttonInteraction.customId === "correct") {
+              const actionRow = buildReccomendActionRow();
+
+              await buttonInteraction.reply({
+                embeds: [embed],
+                components: [actionRow],
+              });
+            }
+          });
       }
     } catch (error) {
       await interaction.reply(
-        `An error occurred when trying to find the movie`
+        `An error occurred when trying to find the movie ${title}: ${error}`
       );
     }
   },
+};
+
+const buildEmbed = (movieDetails: Movie): APIEmbed => {
+  const embed = new EmbedBuilder()
+    .setTitle(movieDetails.title)
+    .setDescription(movieDetails.overview || "No overview available.")
+    .setURL(`https://www.themoviedb.org/movie/${movieDetails.id}`)
+    .addFields([
+      {
+        name: "Release Date",
+        value: movieDetails.release_date || "Unknown",
+        inline: true,
+      },
+      {
+        name: "Rating",
+        value: movieDetails.vote_average?.toString() || "Unknown",
+        inline: true,
+      },
+      {
+        name: "Runtime",
+        value: `${movieDetails.runtime?.toString()} minutes` || "Unknown",
+        inline: true,
+      },
+      {
+        name: "Genres",
+        value:
+          movieDetails.genres?.map((genre) => genre.name).join(", ") ||
+          "Unknown",
+        inline: false,
+      },
+      {
+        name: "Spoken Languages",
+        value:
+          movieDetails.spoken_languages
+            ?.map((language) => language.name)
+            .join(", ") || "Unknown",
+        inline: false,
+      },
+      {
+        name: "Budget",
+        value:
+          movieDetails.budget && movieDetails.budget > 0
+            ? movieDetails.budget?.toLocaleString()
+            : "Unknown",
+        inline: true,
+      },
+      {
+        name: "Revenue",
+        value:
+          movieDetails.revenue && movieDetails.revenue > 0
+            ? movieDetails.revenue?.toLocaleString()
+            : "Unknown",
+        inline: true,
+      },
+      {
+        name: "Trailer",
+        value:
+          movieDetails.videos?.results &&
+          movieDetails.videos?.results[0]?.site === "YouTube" &&
+          movieDetails.videos?.results[0].key !== undefined
+            ? `https://www.youtube.com/watch?v=${movieDetails.videos?.results[0].key}`
+            : "No trailer available.",
+      },
+    ])
+    .setImage(`https://image.tmdb.org/t/p/original${movieDetails.poster_path}`)
+    .setColor(randomColor());
+
+  return embed.toJSON();
+};
+
+const buildEphemeralActionRow = (): ActionRowBuilder<ButtonBuilder> => {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents([
+    new ButtonBuilder()
+      .setCustomId("correct")
+      .setLabel("This was the movie I was looking for")
+      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder()
+      .setCustomId("false")
+      .setLabel("This was not the movie I was looking for")
+      .setStyle(ButtonStyle.Danger),
+  ]);
+};
+
+const buildReccomendActionRow = (): ActionRowBuilder<ButtonBuilder> => {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents([
+    new ButtonBuilder()
+      .setCustomId("approve")
+      .setLabel("I approve")
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId("disapprove")
+      .setLabel("I disapprove")
+      .setStyle(ButtonStyle.Danger),
+  ]);
 };
 
 export default movie;

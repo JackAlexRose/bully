@@ -1,5 +1,7 @@
 import { get } from "./ApiClient";
 import { Movie } from "../types/movie";
+import urlBuilder from "../utils/urlBuilder";
+import { TMDB_SEARCH_MOVIE_URL, tmdbQueryFormatter } from "./tmdbUtils";
 
 export interface SearchForMovieResponse {
   page: number;
@@ -11,7 +13,11 @@ export interface SearchForMovieResponse {
 export async function searchForMovie(
   title: string
 ): Promise<SearchForMovieResponse> {
-  const path = `http://www.omdbapi.com/?apikey=${process.env.TMDB_API_KEY}&s=${title}`;
+  const path = urlBuilder(TMDB_SEARCH_MOVIE_URL, {
+    api_key: process.env.TMDB_KEY!,
+    query: tmdbQueryFormatter(title),
+  });
+
   try {
     return await get<SearchForMovieResponse>(path);
   } catch (error) {
