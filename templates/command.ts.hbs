@@ -1,4 +1,4 @@
-import Command from "../interfaces/Command";
+import Command from "../../interfaces/Command";
 import { SlashCommandBuilder } from "discord.js";
 
 const {{camelCase name}}: Command = {
@@ -7,12 +7,12 @@ const {{camelCase name}}: Command = {
     .setDescription("{{sentenceCase description}}")
     .addStringOption((option) =>
       option
-        .setName("example input")
+        .setName("exampleinput")
         .setDescription("example input from the user")
         .setRequired(true)
     ),
   async execute(interaction) {
-    const exampleInput = interaction.options.getString("example input", true);
+    const exampleInput = interaction.options.getString("exampleinput", true);
     await interaction.reply(`You said: ${exampleInput}`);
   },
 };

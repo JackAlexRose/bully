@@ -16,7 +16,7 @@ module.exports = function (plop) {
     actions: [
       {
         type: "add",
-        path: "src/commands/{{dashCase name}}.ts",
+        path: "src/commands/{{dashCase name}}/index.ts",
         templateFile: "templates/command.ts.hbs",
       },
     ],
