@@ -1,8 +1,6 @@
 import axios from "axios";
 
-export async function get<TResponse>(
-  path: string
-): Promise<TResponse | string> {
+export async function get<TResponse>(path: string): Promise<TResponse> {
   try {
     const { data, status } = await axios.get<TResponse>(path);
 
@@ -12,11 +10,11 @@ export async function get<TResponse>(
     return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.log("error message: ", error.message);
-      return error.message;
+      throw new Error(
+        `An error occurred while making the request: ${error.message}`
+      );
     } else {
-      console.log("unexpected error: ", error);
-      return "An unexpected error occurred";
+      throw new Error("An unexpected error occurred");
     }
   }
 }

@@ -14,12 +14,18 @@ export const movie: Command = {
     ),
   async execute(interaction) {
     const title = interaction.options.getString("title", true);
-    const movie = await searchForMovie(title);
-    if (typeof movie === "string") {
-      await interaction.reply(movie);
-    } else {
+    try {
+      const movie = await searchForMovie(title);
+      if (typeof movie === "string") {
+        await interaction.reply(movie);
+      } else {
+        await interaction.reply(
+          `I found ${movie.total_results} movies matching ${title}.`
+        );
+      }
+    } catch (error) {
       await interaction.reply(
-        `I found ${movie.total_results} movies matching ${title}.`
+        `An error occurred when trying to find the movie`
       );
     }
   },

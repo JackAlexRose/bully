@@ -10,7 +10,13 @@ export interface SearchForMovieResponse {
 
 export async function searchForMovie(
   title: string
-): Promise<SearchForMovieResponse | string> {
+): Promise<SearchForMovieResponse> {
   const path = `http://www.omdbapi.com/?apikey=${process.env.TMDB_API_KEY}&s=${title}`;
-  return await get<SearchForMovieResponse>(path);
+  try {
+    return await get<SearchForMovieResponse>(path);
+  } catch (error) {
+    throw new Error(
+      `An error occurred while searching for the movie: ${error}`
+    );
+  }
 }
