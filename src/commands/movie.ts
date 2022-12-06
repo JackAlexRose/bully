@@ -9,7 +9,7 @@ import {
 } from "@discordjs/builders";
 import { ButtonStyle } from "discord.js";
 
-export const movie: Command = {
+const movie: Command = {
   data: new SlashCommandBuilder()
     .setName("movie")
     .setDescription("Display information about a given movie.")
@@ -109,7 +109,7 @@ export const movie: Command = {
             .setStyle(ButtonStyle.Danger),
         ]);
 
-        await interaction.reply({ embeds: [embed], components: [actionRow] });
+        await interaction.reply({ embeds: [embed], components: [] });
       }
     } catch (error) {
       await interaction.reply(
@@ -118,3 +118,5 @@ export const movie: Command = {
     }
   },
 };
+
+export default movie;

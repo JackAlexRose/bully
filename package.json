@@ -8,7 +8,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "start": "tsc && node -r dotenv/config ./prod/index.js"
+    "start": "tsc && node -r dotenv/config ./prod/index.js",
+    "clean": "rm -rf ./prod"
   },
   "dependencies": {
     "@discordjs/builders": "^1.4.0",

@@ -1,7 +1,7 @@
 import Command from "../interfaces/Command";
 import { SlashCommandBuilder } from "discord.js";
 
-export const {{camelCase name}}: Command = {
+const {{camelCase name}}: Command = {
   data: new SlashCommandBuilder()
     .setName("{{camelCase name}}")
     .setDescription("{{sentenceCase description}}")
@@ -16,3 +16,5 @@ export const {{camelCase name}}: Command = {
     await interaction.reply(`You said: ${exampleInput}`);
   },
 };
+
+export default {{camelCase name}};
