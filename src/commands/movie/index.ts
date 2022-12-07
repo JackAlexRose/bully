@@ -5,10 +5,7 @@ import Command from "../../interfaces/Command";
 import { searchForMovie } from "../../api/searchForMovie";
 import { queryMovie } from "../../api/queryMovie";
 import buildMovieEmbed from "./buildMovieEmbed";
-import {
-  buildEphemeralActionRow,
-  buildReccomendActionRow,
-} from "./buildActionRow";
+import buildSearchEmbed from "./buildSearchEmbed";
 
 const movie: Command = {
   data: new SlashCommandBuilder()
@@ -20,52 +17,83 @@ const movie: Command = {
         .setDescription("The title of the movie.")
         .setRequired(true)
     ),
-  async execute(interaction) {
-    const title = interaction.options.getString("title", true);
+  async execute(initialMovieInteraction) {
+    const title = initialMovieInteraction.options.getString("title", true);
     try {
-      const { results } = await searchForMovie(title);
+      const { results: movieSearchResults } = await searchForMovie(title);
 
-      if (results.length === 0) {
-        await interaction.reply({
+      if (movieSearchResults.length === 0) {
+        await initialMovieInteraction.reply({
           content: "No results found.",
           ephemeral: true,
         });
       } else {
-        const firstMovieDetails = await queryMovie(results[0].id);
+        const searchResponse = await initialMovieInteraction.reply(
+          buildSearchEmbed(movieSearchResults)
+        );
 
-        const embed = buildMovieEmbed(firstMovieDetails);
-        const ephemeralActionRow = buildEphemeralActionRow();
+        let filmSelectButtonInteraction;
+        try {
+          filmSelectButtonInteraction =
+            await searchResponse.awaitMessageComponent({
+              componentType: ComponentType.Button,
+              time: 60000,
+            });
+        } catch (error) {
+          await initialMovieInteraction.editReply({
+            content: "You took too long to select a movie.",
+            embeds: [],
+            components: [],
+          });
 
-        const interactionResponse = await interaction.reply({
-          embeds: [embed],
-          components: [ephemeralActionRow],
-          ephemeral: true,
+          setTimeout(() => {
+            initialMovieInteraction.deleteReply();
+          }, 10000);
+          return;
+        }
+
+        await filmSelectButtonInteraction.deferUpdate();
+
+        const movieDetails = await queryMovie(
+          movieSearchResults[parseInt(filmSelectButtonInteraction.customId) - 1]
+            .id
+        );
+
+        const movieDetailsReply = await initialMovieInteraction.editReply(
+          buildMovieEmbed(movieDetails)
+        );
+
+        const collector = movieDetailsReply.createMessageComponentCollector({
+          componentType: ComponentType.Button,
         });
 
-        const buttonInteraction =
-          await interactionResponse.awaitMessageComponent({
-            componentType: ComponentType.Button,
-            time: 60000,
-          });
+        let recommenders: string[] = [];
 
-        if (buttonInteraction.customId === "correct") {
-          const actionRow = buildReccomendActionRow();
+        collector.on("collect", async (recommendInteraction) => {
+          await recommendInteraction.deferUpdate();
 
-          await buttonInteraction.reply({
-            embeds: [embed],
-            components: [actionRow],
-          });
-        } else {
-          await buttonInteraction.reply({
-            content: "Please try again.",
-            ephemeral: true,
-          });
-        }
+          const guildMember = await recommendInteraction.guild?.members.fetch(
+            recommendInteraction.user.id
+          );
+          const memberDisplayName = guildMember?.displayName;
+
+          if (!memberDisplayName || recommenders.includes(memberDisplayName))
+            return;
+
+          if (recommendInteraction.customId === "recommend") {
+            recommenders.push(memberDisplayName);
+          }
+
+          await recommendInteraction.editReply(
+            buildMovieEmbed(movieDetails, recommenders)
+          );
+        });
       }
     } catch (error) {
-      await interaction.reply(
-        `An error occurred when trying to find the movie ${title}: ${error}`
-      );
+      await initialMovieInteraction.reply({
+        content: `An error occurred when trying to find the movie ${title}: ${error}`,
+        ephemeral: true,
+      });
     }
   },
 };

@@ -1,8 +1,9 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { randomColor } from "../../constants";
 import { Movie } from "../../types/movie";
+import { buildReccomendActionRow } from "./buildActionRow";
 
-export default (movieDetails: Movie) => {
+export default (movieDetails: Movie, recommenders?: string[]) => {
   const embed = new EmbedBuilder()
     .setTitle(movieDetails.title)
     .setDescription(movieDetails.overview || "No overview available.")
@@ -10,7 +11,7 @@ export default (movieDetails: Movie) => {
     .addFields([
       {
         name: "Release Date",
-        value: movieDetails.release_date || "Unknown",
+        value: movieDetails.release_date?.slice(0, 4) || "Unknown",
         inline: true,
       },
       {
@@ -42,7 +43,7 @@ export default (movieDetails: Movie) => {
         name: "Budget",
         value:
           movieDetails.budget && movieDetails.budget > 0
-            ? movieDetails.budget?.toLocaleString()
+            ? `$${movieDetails.budget?.toLocaleString()}`
             : "Unknown",
         inline: true,
       },
@@ -50,7 +51,7 @@ export default (movieDetails: Movie) => {
         name: "Revenue",
         value:
           movieDetails.revenue && movieDetails.revenue > 0
-            ? movieDetails.revenue?.toLocaleString()
+            ? `$${movieDetails.revenue?.toLocaleString()}`
             : "Unknown",
         inline: true,
       },
@@ -65,7 +66,13 @@ export default (movieDetails: Movie) => {
       },
     ])
     .setImage(`https://image.tmdb.org/t/p/original${movieDetails.poster_path}`)
-    .setColor(randomColor());
+    .setColor(randomColor())
+    .setFooter({
+      text: `${recommenders?.join(", ") || "No-one"} recommend(s) this film.`,
+    });
 
-  return embed.toJSON();
+  return {
+    embeds: [embed.toJSON()],
+    components: [buildReccomendActionRow()],
+  };
 };

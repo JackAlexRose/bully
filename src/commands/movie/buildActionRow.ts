@@ -1,28 +1,39 @@
 import { ActionRowBuilder, ButtonBuilder } from "@discordjs/builders";
 import { ButtonStyle } from "discord.js";
 
-export const buildEphemeralActionRow = (): ActionRowBuilder<ButtonBuilder> => {
+export const buildSearchActionRows = (
+  amount: number
+): ActionRowBuilder<ButtonBuilder>[] => {
+  amount = Math.min(amount, 10);
+  const rows = [];
+  if (amount > 5) {
+    rows.push(buildSearchActionRow(5, 1));
+    rows.push(buildSearchActionRow(amount - 5, 6));
+  } else {
+    rows.push(buildSearchActionRow(amount, 1));
+  }
+  return rows;
+};
+
+const buildSearchActionRow = (
+  amount: number,
+  startIndex: number
+): ActionRowBuilder<ButtonBuilder> => {
   return new ActionRowBuilder<ButtonBuilder>().addComponents([
-    new ButtonBuilder()
-      .setCustomId("correct")
-      .setLabel("This was the movie I was looking for")
-      .setStyle(ButtonStyle.Success),
-    new ButtonBuilder()
-      .setCustomId("false")
-      .setLabel("This was not the movie I was looking for")
-      .setStyle(ButtonStyle.Danger),
+    ...Array.from({ length: amount }, (_, i) => i + startIndex).map((i) => {
+      return new ButtonBuilder()
+        .setCustomId(i.toString())
+        .setLabel(i.toString())
+        .setStyle(ButtonStyle.Primary);
+    }),
   ]);
 };
 
 export const buildReccomendActionRow = (): ActionRowBuilder<ButtonBuilder> => {
   return new ActionRowBuilder<ButtonBuilder>().addComponents([
     new ButtonBuilder()
-      .setCustomId("approve")
-      .setLabel("I approve")
+      .setCustomId("recommend")
+      .setLabel("Recommend")
       .setStyle(ButtonStyle.Primary),
-    new ButtonBuilder()
-      .setCustomId("disapprove")
-      .setLabel("I disapprove")
-      .setStyle(ButtonStyle.Danger),
   ]);
 };
