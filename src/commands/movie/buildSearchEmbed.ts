@@ -27,4 +27,3 @@ export default (movieOptions: Movie[]) => {
     components: [...buildSearchActionRows(movieOptions.length)],
   };
 };
-``;
