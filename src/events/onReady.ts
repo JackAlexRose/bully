@@ -1,6 +1,6 @@
 import { REST } from "@discordjs/rest";
 import { Client } from "discord.js";
-import getCommandList from "../utils/getCommandList";
+import getCommandList from "../commands/getCommandList";
 import { Routes } from "discord-api-types/v10";
 
 export default async (DiscordClient: Client) => {
