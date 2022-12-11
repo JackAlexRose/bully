@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, Client } from "discord.js";
 import validateEnv from "./utils/validateEnv";
 import { IntentOptions } from "./config/IntentOptions";
+import connectDatabase from "./database/connectDatabase";
 import onInteraction from "./events/onInteraction";
 import onReady from "./events/onReady";
 
@@ -16,5 +17,6 @@ import onReady from "./events/onReady";
       await onInteraction(interaction as ChatInputCommandInteraction)
   );
 
+  await connectDatabase();
   await DiscordClient.login(process.env.DISCORD_BOT_TOKEN);
 })();
