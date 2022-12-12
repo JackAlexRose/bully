@@ -7,6 +7,8 @@ import { queryMovie } from "../../api/queryMovie";
 import buildMovieEmbed from "./buildMovieEmbed";
 import buildSearchEmbed from "./buildSearchEmbed";
 
+import updateUserMovieRecommendations from "../../database/updateUserMovieRecommendations";
+
 const movie: Command = {
   data: new SlashCommandBuilder()
     .setName("movie")
@@ -81,7 +83,11 @@ const movie: Command = {
             return;
 
           if (recommendInteraction.customId === "recommend") {
-            recommenders.push(memberDisplayName);
+            await updateUserMovieRecommendations(
+              recommendInteraction.user.id,
+              movieDetails.id
+            );
+            await recommenders.push(memberDisplayName);
           }
 
           await recommendInteraction.editReply(
