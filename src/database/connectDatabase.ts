@@ -12,5 +12,5 @@ export default async () => {
 };
 
 const mongoUriBuilder = (user: string, pass: string, address: string) => {
-  return `mongodb://${user}:${pass}@${address}/?authMechanism=DEFAULT`;
+  return `mongodb://${user}:${pass}@${address}/bulldogs?authMechanism=DEFAULT`;
 };
