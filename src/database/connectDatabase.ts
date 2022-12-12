@@ -1,16 +1,10 @@
 import { connect } from "mongoose";
 
 export default async () => {
-  const mongoUri = mongoUriBuilder(
-    process.env.MONGO_USER as string,
-    process.env.MONGO_PASS as string,
-    process.env.MONGO_ADDRESS as string
-  );
-
-  await connect(mongoUri);
+  await connect(`mongodb://${process.env.MONGO_ADDRESS as string}/bulldogs`, {
+    authSource: "admin",
+    user: process.env.MONGO_USER,
+    pass: process.env.MONGO_PASS,
+  });
   console.log("Database Connected!");
-};
-
-const mongoUriBuilder = (user: string, pass: string, address: string) => {
-  return `mongodb://${user}:${pass}@${address}/bulldogs?authMechanism=DEFAULT`;
 };
