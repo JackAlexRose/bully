@@ -2,11 +2,8 @@ import UserMovieRecommendationsModel from "./models/UserMovieRecommendationsMode
 
 export default async (id: string) => {
   const userMovieRecommendations =
-    (await UserMovieRecommendationsModel.findOne({ id })) ||
-    (await UserMovieRecommendationsModel.create({
-      discordId: id,
-      recommendedMovies: [],
-    }));
+    (await UserMovieRecommendationsModel.findOne({ id }))?.recommendedMovies ||
+    [];
 
   return userMovieRecommendations;
 };
