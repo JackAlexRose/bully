@@ -3,6 +3,7 @@ import userMovieRecommendationsModel from "./models/UserMovieRecommendationsMode
 export default async (discordId: string, newMovie: number) => {
   await userMovieRecommendationsModel.findOneAndUpdate(
     { discordId: discordId },
-    { $addToSet: { recommendedMovies: newMovie } }
+    { $addToSet: { recommendedMovies: newMovie } },
+    { upsert: true }
   );
 };
