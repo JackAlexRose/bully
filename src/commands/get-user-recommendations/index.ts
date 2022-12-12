@@ -7,12 +7,12 @@ const getUserRecommendations: Command = {
     .setDescription("Get a list of a user's recommendations")
     .addStringOption((option) =>
       option
-        .setName("userTag")
+        .setName("user-tag")
         .setDescription("tag the user here")
         .setRequired(true)
     ),
   async execute(interaction) {
-    const exampleInput = interaction.options.getString("userTag", true);
+    const exampleInput = interaction.options.getString("user-tag", true);
     await interaction.reply(`You said: ${exampleInput}`);
   },
 };
