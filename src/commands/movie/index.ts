@@ -62,14 +62,6 @@ const movie: Command = {
             .id
         );
 
-        const movieDetailsReply = await initialMovieInteraction.editReply(
-          buildMovieEmbed(movieDetails)
-        );
-
-        const collector = movieDetailsReply.createMessageComponentCollector({
-          componentType: ComponentType.Button,
-        });
-
         const pastRecommenders: string[] = await getUsersWhoRecommendedMovie(
           movieDetails.id
         );
@@ -81,6 +73,14 @@ const movie: Command = {
             return guildMember?.displayName || "Unknown";
           })
         );
+
+        const movieDetailsReply = await initialMovieInteraction.editReply(
+          buildMovieEmbed(movieDetails, recommenders)
+        );
+
+        const collector = movieDetailsReply.createMessageComponentCollector({
+          componentType: ComponentType.Button,
+        });
 
         collector.on("collect", async (recommendInteraction) => {
           await recommendInteraction.deferUpdate();
