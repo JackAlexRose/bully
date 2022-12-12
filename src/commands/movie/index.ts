@@ -7,6 +7,7 @@ import { queryMovie } from "../../api/queryMovie";
 import buildMovieEmbed from "./buildMovieEmbed";
 import buildSearchEmbed from "./buildSearchEmbed";
 
+import getUsersWhoRecommendedMovie from "../../database/getUsersWhoRecommendedMovie";
 import updateUserMovieRecommendations from "../../database/updateUserMovieRecommendations";
 
 const movie: Command = {
@@ -69,7 +70,17 @@ const movie: Command = {
           componentType: ComponentType.Button,
         });
 
-        let recommenders: string[] = [];
+        const pastRecommenders: string[] = await getUsersWhoRecommendedMovie(
+          movieDetails.id
+        );
+
+        const recommenders = await Promise.all(
+          pastRecommenders.map(async (recommender) => {
+            const guildMember =
+              await initialMovieInteraction.guild?.members.fetch(recommender);
+            return guildMember?.displayName || "Unknown";
+          })
+        );
 
         collector.on("collect", async (recommendInteraction) => {
           await recommendInteraction.deferUpdate();
