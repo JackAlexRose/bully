@@ -65,7 +65,7 @@ const getUserRecommendations: Command = {
       .addFields([
         {
           name: `${userTag}'s recommendations:`,
-          value: `\`\`\`\ntable(data, config)\`\`\``,
+          value: `\`\`\`\n${table(data, config)}\`\`\``,
         },
       ]);
 
