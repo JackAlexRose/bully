@@ -46,16 +46,17 @@ const getUserRecommendations: Command = {
 
     const user = await interaction.guild?.members.fetch(userId);
     const userThumbnail = user?.user.avatarURL() || null;
+    const userDisplayName = user?.displayName || userTag;
 
     const embed = new EmbedBuilder()
-      .setTitle(`${userTag}'s recommendations:`)
+      .setTitle(`${userDisplayName}'s recommendations`)
       .setThumbnail(userThumbnail);
 
-    userRecommendationEmbeds.forEach((movie) => {
+    userRecommendationEmbeds.forEach((movie, index) => {
       embed.addFields([
         {
-          name: movie.title || "No Title available",
-          value: `(${movie.release_date?.slice(0, 4) || "Unknown"}), ${
+          name: `${index + 1}. ${movie.title}` || "No Title available",
+          value: `${movie.release_date?.slice(0, 4) || "Unknown"}, ${
             movie.vote_average?.toFixed(1) || "Unknown"
           }/10`,
         },
