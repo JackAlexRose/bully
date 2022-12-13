@@ -3,8 +3,7 @@ import { SlashCommandBuilder } from "discord.js";
 import getUserMovieRecommendations from "../../database/getUserMovieRecommendations";
 import { queryMovie } from "../../api/queryMovie";
 import { EmbedBuilder } from "@discordjs/builders";
-import { Table } from "embed-table";
-import { table } from "table";
+
 import isValidUserTag from "../../utils/isValidUserTag";
 
 const getUserRecommendations: Command = {
@@ -39,35 +38,38 @@ const getUserRecommendations: Command = {
       return;
     }
 
-    const data = [["Title", "Release Date", "Rating"]];
+    const userRecommendationEmbeds = await Promise.all(
+      userRecommendations.map(async (recommendation) => {
+        return await queryMovie(recommendation);
+      })
+    );
 
-    await userRecommendations.forEach(async (recommendation) => {
-      const movie = await queryMovie(recommendation);
-
-      data.push([
-        movie.title.slice(0, 17) + "..." || "None",
-        movie.release_date?.toString() || "None",
-        movie.vote_average?.toString() || "None",
-      ]);
-    });
-
-    const config = {
-      drawHorizontalLine: (lineIndex: number, rowCount: number) => {
-        return lineIndex === 1;
-      },
-    };
-
-    const guildMember = await interaction.guild?.members.fetch(userId);
-    const userThumbnail = guildMember?.user.avatarURL() || "";
+    const user = await interaction.guild?.members.fetch(userId);
+    const userThumbnail = user?.user.avatarURL() || null;
 
     const embed = new EmbedBuilder()
-      .setThumbnail(userThumbnail || "")
-      .addFields([
+      .setTitle(`${userTag}'s recommendations:`)
+      .setThumbnail(userThumbnail);
+
+    userRecommendationEmbeds.forEach((movie) => {
+      embed.addFields([
         {
-          name: `${userTag}'s recommendations:`,
-          value: `\`\`\`\n${table(data, config)}\`\`\``,
+          name: "Title",
+          value: movie.title || "No Title available",
+          inline: true,
+        },
+        {
+          name: "Release Date",
+          value: movie.release_date || "No release date available.",
+          inline: true,
+        },
+        {
+          name: "Rating",
+          value: movie.vote_average?.toString() || "No rating available.",
+          inline: true,
         },
       ]);
+    });
 
     await interaction.reply({
       embeds: [embed],
