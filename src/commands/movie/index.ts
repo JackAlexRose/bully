@@ -107,6 +107,7 @@ const movie: Command = {
         });
       }
     } catch (error) {
+      console.warn(error);
       await initialMovieInteraction.reply({
         content: `An error occurred when trying to find the movie ${title}: ${error}`,
         ephemeral: true,
