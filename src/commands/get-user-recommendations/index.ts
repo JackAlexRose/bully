@@ -4,7 +4,7 @@ import getUserMovieRecommendations from "../../database/getUserMovieRecommendati
 import { queryMovie } from "../../api/queryMovie";
 import { EmbedBuilder } from "@discordjs/builders";
 import { Table } from "embed-table";
-
+import { table } from "table";
 import isValidUserTag from "../../utils/isValidUserTag";
 
 const getUserRecommendations: Command = {
@@ -39,32 +39,35 @@ const getUserRecommendations: Command = {
       return;
     }
 
-    const table = new Table({
-      titles: ["Film Title", "Year", "Rating"],
-      titleIndexes: [0, 24, 22],
-      columnIndexes: [0, 22, 20],
-      start: "`",
-      end: "`",
-      padEnd: 3,
-    });
+    const data = [["Title", "Release Date", "Rating"]];
 
     await userRecommendations.forEach(async (recommendation) => {
       const movie = await queryMovie(recommendation);
 
-      table.addRow([
+      data.push([
         movie.title.slice(0, 17) + "..." || "None",
         movie.release_date?.toString() || "None",
         movie.vote_average?.toString() || "None",
       ]);
     });
 
+    const config = {
+      drawHorizontalLine: (lineIndex: number, rowCount: number) => {
+        return lineIndex === 1;
+      },
+    };
+
     const guildMember = await interaction.guild?.members.fetch(userId);
     const userThumbnail = guildMember?.user.avatarURL() || "";
 
     const embed = new EmbedBuilder()
-      .setTitle(`${userTag}'s recommendations:`)
       .setThumbnail(userThumbnail || "")
-      .addFields([table.toField()]);
+      .addFields([
+        {
+          name: `${userTag}'s recommendations:`,
+          value: `\`\`\`\ntable(data, config)\`\`\``,
+        },
+      ]);
 
     await interaction.reply({
       embeds: [embed],
