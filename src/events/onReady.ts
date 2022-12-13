@@ -10,12 +10,8 @@ export default async (DiscordClient: Client) => {
 
   const commandData = getCommandList().map((command) => command.data.toJSON());
 
-  await rest.put(
-    Routes.applicationGuildCommands(
-      DiscordClient.user!.id,
-      process.env.TEST_GUILD_ID as string
-    ),
-    { body: commandData }
-  );
+  await rest.put(Routes.applicationCommands(DiscordClient.user!.id), {
+    body: commandData,
+  });
   console.log("Discord bot is ready!");
 };
