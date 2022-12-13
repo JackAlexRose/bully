@@ -41,8 +41,8 @@ const getUserRecommendations: Command = {
 
     const table = new Table({
       titles: ["Film Title", "Year", "Rating"],
-      titleIndexes: [0, 16, 22],
-      columnIndexes: [0, 14, 20],
+      titleIndexes: [0, 24, 22],
+      columnIndexes: [0, 22, 20],
       start: "`",
       end: "`",
       padEnd: 3,
@@ -52,7 +52,7 @@ const getUserRecommendations: Command = {
       const movie = await queryMovie(recommendation);
 
       table.addRow([
-        movie.title,
+        movie.title.slice(0, 17) + "..." || "None",
         movie.release_date?.toString() || "None",
         movie.vote_average?.toString() || "None",
       ]);
