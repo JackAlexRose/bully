@@ -54,19 +54,10 @@ const getUserRecommendations: Command = {
     userRecommendationEmbeds.forEach((movie) => {
       embed.addFields([
         {
-          name: "Title",
-          value: movie.title || "No Title available",
-          inline: true,
-        },
-        {
-          name: "Release Date",
-          value: movie.release_date || "No release date available.",
-          inline: true,
-        },
-        {
-          name: "Rating",
-          value: movie.vote_average?.toString() || "No rating available.",
-          inline: true,
+          name: movie.title || "No Title available",
+          value: `(${movie.release_date?.slice(0, 4) || "Unknown"}), ${
+            movie.vote_average?.toFixed(1) || "Unknown"
+          }/10`,
         },
       ]);
     });
