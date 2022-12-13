@@ -68,7 +68,7 @@ export default (movieDetails: Movie, recommenders?: string[]) => {
     .setImage(`https://image.tmdb.org/t/p/original${movieDetails.poster_path}`)
     .setColor(randomColor())
     .setFooter({
-      text: `${recommenders?.join(", ") || "No-one"} recommend(s) this film.`,
+      text: `Recommended by: ${recommenders?.join(", ") || "No-one"}`,
     });
 
   return {
