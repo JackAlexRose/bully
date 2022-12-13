@@ -3,6 +3,7 @@ import { SlashCommandBuilder } from "discord.js";
 import getUserMovieRecommendations from "../../database/getUserMovieRecommendations";
 import { queryMovie } from "../../api/queryMovie";
 import { EmbedBuilder } from "@discordjs/builders";
+import { Table } from "embed-table";
 
 import isValidUserTag from "../../utils/isValidUserTag";
 
@@ -38,35 +39,35 @@ const getUserRecommendations: Command = {
       return;
     }
 
-    const userRecommendationEmbeds = await Promise.all(
-      userRecommendations.map(async (recommendation) => {
-        return await queryMovie(recommendation);
-      })
-    );
-
-    const embeds = userRecommendationEmbeds.map((movie) => {
-      return new EmbedBuilder()
-        .setTitle(movie.title)
-        .setURL(`https://www.themoviedb.org/movie/${movie.id}`)
-        .setDescription(movie.overview || "No overview available.")
-        .setThumbnail(`https://image.tmdb.org/t/p/w500${movie.poster_path}`)
-        .addFields([
-          {
-            name: "Release Date",
-            value: movie.release_date || "No release date available.",
-            inline: true,
-          },
-          {
-            name: "Rating",
-            value: movie.vote_average?.toString() || "No rating available.",
-            inline: true,
-          },
-        ]);
+    const table = new Table({
+      titles: ["Film Title", "Year", "Rating"],
+      titleIndexes: [0, 16, 22],
+      columnIndexes: [0, 14, 20],
+      start: "`",
+      end: "`",
+      padEnd: 3,
     });
 
+    await userRecommendations.forEach(async (recommendation) => {
+      const movie = await queryMovie(recommendation);
+
+      table.addRow([
+        movie.title,
+        movie.release_date?.toString() || "None",
+        movie.vote_average?.toString() || "None",
+      ]);
+    });
+
+    const guildMember = await interaction.guild?.members.fetch(userId);
+    const userThumbnail = guildMember?.user.avatarURL() || "";
+
+    const embed = new EmbedBuilder()
+      .setTitle(`${userTag}'s recommendations:`)
+      .setThumbnail(userThumbnail || "")
+      .addFields([table.toField()]);
+
     await interaction.reply({
-      content: `Here are ${userTag}'s recommendations:`,
-      embeds: embeds,
+      embeds: [embed],
     });
   },
 };
